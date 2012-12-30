@@ -104,7 +104,7 @@ class Box : public CCNode
     Box(BlocksStates* bs, const CCRect& blockRect, HelloWorld* layer);
 
     const BlocksState& getBlocksState(void) { return (*m_states)[m_stateIdx]; }
-    Block* getBlock(int idx) { return m_blocks[idx]; }
+    Block* getBlock(int idx) { return static_cast<Block*>(m_pblocks->objectAtIndex(idx)); }
     void removeChildBlock(Block* block);
     float getStepInterval() { return m_stepInterval; }
     void accelerateStepSpeed(int multiple);
@@ -118,7 +118,7 @@ class Box : public CCNode
     void step(float dt);
   
   private:
-    std::vector<Block*> m_blocks;
+    CCArray* m_pblocks;
     BlocksStates* m_states;
     int m_stateIdx;
     Coord m_coord;

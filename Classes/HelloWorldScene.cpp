@@ -182,6 +182,8 @@ Box* Box::createBox(BoxTypes type, HelloWorld* layer)
   pbss = s_blocksStatesMap.find(type);
   CCAssert(pbss != s_blocksStatesMap.end(), "error! can't find mapping blocks states");
   ret = new Box(&pbss->second, prect->second, layer);
+  CCAssert(ret, "error! can't create Box");
+  ret->autorelease();
 
   return ret;
 }
@@ -196,13 +198,15 @@ Box::Box(BlocksStates *bss, const CCRect& blockRect, HelloWorld* layer):
 {
   const BlocksState& bs = (*m_states)[0]; 
   int blockNum = bs.size();
+  m_pblocks = CCArray::create();
+  m_pblocks->retain();
   
   for(int i = 0; i < blockNum; i++){
     const Coord& coord = bs[i];
     Block* block = Block::create(this, blockRect);
     CCAssert(block, "error! can't create block object");
     block->setPosition(ccp(coord.x*BLOCK_WIDTH, coord.y*BLOCK_WIDTH));
-    m_blocks.push_back(block);
+    m_pblocks->addObject(block);
     addChild(block, 1, i);
   }
 }
@@ -212,7 +216,7 @@ void Box::rotate()
   int stateNum = m_states->size();
   int newIdx = (m_stateIdx + 1) % stateNum;
   const BlocksState& bs = (*m_states)[newIdx];
-  int blockNum = m_blocks.size();
+  int blockNum = m_pblocks->count();
 
   bool canRotate = true;
   if(!testBlocksState(bs)){
@@ -239,21 +243,20 @@ void Box::rotate()
   m_stateIdx = newIdx;
   for(int i = 0; i < blockNum; i++){
     const Coord& coord = bs[i];
-    Block* block = m_blocks[i];
+    Block* block = static_cast<Block*>(m_pblocks->objectAtIndex(i));
     block->setPosition(ccp(coord.x*BLOCK_WIDTH, coord.y*BLOCK_WIDTH));
   }
 }
 
 void Box::removeChildBlock(Block* block)
 {
-  std::vector<Block*>::iterator it;
-  it = std::find(m_blocks.begin(), m_blocks.end(), block);
-  
-  CCAssert(it != m_blocks.end(), "error! block not in box.");
-  m_blocks.erase(it);
+  CCAssert(m_pblocks->containsObject(block), "error! block not in box.");
+  m_pblocks->removeObject(block);
   removeChild(block);
-  if(m_blocks.empty())
+  if(!m_pblocks->count()){
+    m_pblocks->release();
     m_layer->removeChild(this);
+  }
 }
 
 void Box::accelerateStepSpeed(int multiple)
@@ -268,7 +271,7 @@ void Box::accelerateStepSpeed(int multiple)
 
 bool Box::testBlocksStateWithCoordinate(const BlocksState& bs, const Coord& coord)
 {
-  int blockNum = m_blocks.size();
+  int blockNum = m_pblocks->count();
 
   for(int i = 0; i < blockNum; i++){
     int x = bs[i].x + coord.x;
@@ -297,7 +300,7 @@ void Box::setCoordinate(const Coord& coord)
 
 bool Box::testCoordinate(const Coord& coord)
 {
-  int blockNum = m_blocks.size();
+  int blockNum = m_pblocks->count();
   BlocksState& bs = (*m_states)[m_stateIdx];
 
   for(int i = 0; i < blockNum; i++){
@@ -312,7 +315,7 @@ bool Box::testCoordinate(const Coord& coord)
 
 void Box::step(float dt)
 {
-  int blockNum = m_blocks.size();
+  int blockNum = m_pblocks->count();
   BlocksState& bs = (*m_states)[m_stateIdx];
   
   for(int i = 0; i < blockNum; i++){
