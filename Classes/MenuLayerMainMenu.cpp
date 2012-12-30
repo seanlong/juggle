@@ -31,7 +31,7 @@ bool MenuLayerMainMenu::init()
 
     // hard Item
     CCMenuItemFont::setFontName("Marker Felt");
-    CCMenuItemFont *item2 = CCMenuItemFont::create("hard", this, menu_selector(MenuLayerMainMenu::menuCallbackStartGame));
+    CCMenuItemFont *item2 = CCMenuItemFont::create("hard", this, menu_selector(MenuLayerMainMenu::menuCallbackStartGame2));
     
     // tough Item
     CCMenuItemFont *item3 = CCMenuItemFont::create("tough", this, menu_selector(MenuLayerMainMenu::menuCallbackStartGame));
@@ -72,14 +72,24 @@ MenuLayerMainMenu::~MenuLayerMainMenu()
 {
 }
 
+void MenuLayerMainMenu::menuCallbackStartGame2(CCObject* sender)
+{
+    // create a scene. it's an autorelease object
+    CCScene *pScene = HelloWorld::scene();
+
+    // run
+ CCDirector::sharedDirector()->replaceScene(CCTransitionShrinkGrow::transitionWithDuration(1.2f,pScene));
+
+}
+
 void MenuLayerMainMenu::menuCallbackStartGame(CCObject* sender)
 {
     // create a scene. it's an autorelease object
     CCScene *pScene = HelloWorld::scene();
 
     // run
-    CCDirector::sharedDirector()->replaceScene(pScene);
-	pScene->release();
+    CCDirector::sharedDirector()->replaceScene(CCTransitionZoomFlipY::transitionWithDuration(1.2f, pScene));
+
 }
 
 void MenuLayerMainMenu::allowTouches(float dt)

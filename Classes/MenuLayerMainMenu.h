@@ -22,6 +22,7 @@ public:
 
     void allowTouches(float dt);
     void menuCallbackStartGame(CCObject* pSender);
+	void menuCallbackStartGame2(CCObject* pSender);
     void onQuit(CCObject* pSender);
 	CREATE_FUNC(MenuLayerMainMenu);
 };

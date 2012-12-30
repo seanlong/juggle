@@ -1,6 +1,8 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
+#include "MenuLayerMainMenu.h"
 #include "AppMacros.h"
+
 
 USING_NS_CC;
 
@@ -57,7 +59,7 @@ CCFileUtils::sharedFileUtils()->setResourceDirectory(smallResource.directory);
     pDirector->setAnimationInterval(1.0 / 60);
 
     // create a scene. it's an autorelease object
-    CCScene *pScene = HelloWorld::scene();
+    CCScene *pScene = MenuLayerMainMenu::scene();
 
     // run
     pDirector->runWithScene(pScene);
